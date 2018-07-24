@@ -58,7 +58,7 @@
     },
     "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/mmcsa/AzureDays/master/OMS",
+      "defaultValue": "https://jorsmith.visualstudio.com/BostonAzureDays/_git/BostonAzureDays",
       "metadata": {
         "description": "The base URI where artifacts required by this template are located"
       }

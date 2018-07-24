@@ -49,7 +49,7 @@
     },
     "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/mmcsa/AzureDays/master/OMS",
+      "defaultValue": "https://jorsmith.visualstudio.com/BostonAzureDays/_git/BostonAzureDays",
       "metadata": {
         "description": "The base URI where artifacts required by this template are located"
       }
@@ -59,39 +59,39 @@
     "psModules": {
       "azureRmProfile": {
         "name": "AzureRm.Profile",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.profile.4.1.1.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.profile.5.3.3.nupkg"
       },
       "azureRmResources": {
         "name": "AzureRm.Resources",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.resources.5.1.1.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.resources.6.2.1.nupkg"
       },
       "azureStorage": {
         "name": "Azure.Storage",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azure.storage.4.0.2.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azure.storage.4.3.2.nupkg"
       },
       "azureRmStorage": {
         "name": "AzureRm.Storage",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.storage.4.1.0.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.storage.5.0.0.nupkg"
       },
       "azureRmOperationalInsights": {
         "name": "AzureRm.OperationalInsights",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.operationalinsights.4.0.0.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.operationalinsights.5.0.2.nupkg"
       },
       "azureRmSiteRecovery": {
         "name": "AzureRm.SiteRecovery",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.siterecovery.5.0.3.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.siterecovery.5.0.6.nupkg"
       },
       "azureRmRecoveryServices": {
         "name": "AzureRm.RecoveryServices",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.recoveryservices.4.0.1.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.recoveryservices.4.1.4.nupkg"
       },
       "azureRmBackup": {
         "name": "AzureRm.Backup",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.backup.4.0.1.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.backup.4.0.6.nupkg"
       },
       "azureRmCompute": {
         "name": "AzureRm.Compute",
-        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.compute.4.1.1.nupkg"
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.compute.5.3.0.nupkg"
       },
       "xWebAdministration": {
         "name": "xWebAdministration",
@@ -108,6 +108,10 @@
       "cAzureStorage": {
         "name": "cAzureStorage",
         "url": "https://devopsgallerystorage.blob.core.windows.net/packages/cazurestorage.1.0.0.1.nupkg"
+      },
+      "azureRmKeyVault": {
+        "name": "AzureRmKeyVault",
+        "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.keyvault.5.0.4.nupkg"
       }
 
     },
@@ -239,7 +243,7 @@
         },
         {
           "name": "[variables('psModules').azureRmOperationalInsights.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -254,7 +258,7 @@
         },
         {
           "name": "[variables('psModules').azureRmResources.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -269,7 +273,7 @@
         },
         {
           "name": "[variables('psModules').azureRmStorage.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -285,7 +289,22 @@
         },
         {
           "name": "[variables('psModules').azureStorage.name]",
-          "type": "Modules",
+          "type": "modules",
+          "apiVersion": "2015-10-31",
+          "tags": {},
+          "dependsOn": [
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('omsAutomationAccountName'))]",
+            "[concat('Microsoft.Automation/automationAccounts/', parameters('omsAutomationAccountName'), '/Modules/', variables('psModules').azureRmProfile.name)]"
+          ],
+          "properties": {
+            "contentLink": {
+              "uri": "[variables('psModules').azureStorage.url]"
+            }
+          }
+        },
+        {
+          "name": "[variables('psModules').azureRmKeyVault.name]",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -300,7 +319,7 @@
         },
         {
           "name": "[variables('psModules').azureRmCompute.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -315,7 +334,7 @@
         },
         {
           "name": "[variables('psModules').azureRmSiteRecovery.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -331,7 +350,7 @@
         },
         {
           "name": "[variables('psModules').azureRmBackup.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -347,7 +366,7 @@
         },
         {
           "name": "[variables('psModules').azureRmRecoveryServices.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -363,7 +382,7 @@
         },
         {
           "name": "[variables('psModules').azureRmProfile.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -377,7 +396,7 @@
         },
         {
           "name": "[variables('psModules').xWebAdministration.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -391,7 +410,7 @@
         },
         {
           "name": "[variables('psModules').xSqlServer.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -405,7 +424,7 @@
         },
         {
           "name": "[variables('psModules').xPSDesiredStateConfiguration.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [
@@ -419,7 +438,7 @@
         },
         {
           "name": "[variables('psModules').cAzureStorage.name]",
-          "type": "Modules",
+          "type": "modules",
           "apiVersion": "2015-10-31",
           "tags": {},
           "dependsOn": [

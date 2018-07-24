@@ -10,8 +10,8 @@ Param(
     [ValidateSet("East US", "West US", "West Europe", "Southeast Asia", "eastus", "westus", "westeurope", "southeastasia")]
     [String]$Location="East US",
 
-    [Parameter(Mandatory=$True, HelpMessage="operating system type to use for VM deployment, either Windows or Linux")]
-    [String]$VmOs
+    [Parameter(Mandatory=$False, HelpMessage="local admin password to use for accessing VMs")]
+    [String]$azureAdminPwd="NikeConverseAzure19"
 )
 # Function to log output with timestamp.
 function Log-Output($msg) {
@@ -70,13 +70,12 @@ foreach ($ResourceGroupName in $ResourceGroupNameArray)
         }
     }
 #initial steps --if you have access to multiple subscriptions uncomment below & add correct sub name
-$artifactsLocation = "https://raw.githubusercontent.com/mmcsa/AzureDays/master"
+$artifactsLocation = "https://jorsmith.visualstudio.com/BostonAzureDays/_git/BostonAzureDays"
 $omsRecoveryVaultName = "azdbos-$ResourceGroupNameString-rv-01"
 $omsWorkspaceName        = "azdbos-$ResourceGroupNameString-law-01"
 $omsAutomationAccountName= "azdbos-$ResourceGroupNameString-aa-01"
-$azureAdminPwd = "NikeAzureAdmin19"
 $azureAdminPwdSecure = ConvertTo-SecureString -String $azureAdminPwd -AsPlainText -Force
-#$azureAdminPwd = Get-AutomationVariable -Name "azd-boston-admin-pwd" | ConvertFrom-SecureString
+
 
 # set resource group names from username
 
@@ -114,6 +113,7 @@ New-AzureRmKeyVault `
 
 #Get resource ID of KeyVault for VM template parameters
 $Vault = Get-AzureRmKeyVault -VaultName $keyvaultName -ResourceGroupName $OpsResourceGroupName
+Set-AzureRmKeyVaultAccessPolicy -InputObject $Vault -UserPrincipalName $ResourceGroupOwner -PermissionsToSecrets get,list,set -PermissionsToKeys get,list,set -PermissionsToStorage get,list,set -PermissionsToCertificates get,list
 $vaultId = $vault.ResourceId
 #get OMS workspace name & keys, store key in vault.
 $omsWorkspace = Get-AzureRmOperationalInsightsWorkspace -ResourceGroupName $opsResourceGroupName
@@ -138,13 +138,12 @@ $storageAccount = Get-AzureRmStorageAccount -ResourceGroupName $opsResourceGroup
 $storageAccountKeys = Get-AzureRmStorageAccountKey -ResourceGroupName $opsResourceGroupName -Name $storageAccount.StorageAccountName
 $storagePrimaryKey = $storageAccountKeys[0].value
 $opsRgVar = New-AzureRmAutomationVariable -Encrypted $false -Name "opsResourceGroupName" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $opsResourceGroupName
-$vnetRgVar = New-AzureRmAutomationVariable -Encrypted $false -Name "VnetResourceGroup" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $vnetresourceGroupNamr
-$vmRgVar = New-AzureRmAutomationVariable -Encrypted $false -Name "VnetResourceGroup" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $VmResourceGroupName
+$vnetRgVar = New-AzureRmAutomationVariable -Encrypted $false -Name "VnetResourceGroup" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $vnetresourceGroupName
+$vmRgVar = New-AzureRmAutomationVariable -Encrypted $false -Name "VmResourceGroup" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $VmResourceGroupName
 $artifactsVar = New-AzureRmAutomationVariable -Encrypted $false -Name "artifactsLocation" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $artifactsLocation
 $storageAccountNameVar = New-AzureRmAutomationVariable -Encrypted $false -Name "saname" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $storageAccount.StorageAccountName
 $storageAccountKeyVar = New-AzureRmAutomationVariable -Encrypted $true -Name "sakey" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $storagePrimaryKey
 $KeyVaultIdVar = New-AzureRmAutomationVariable -Encrypted $true -Name "vaultid" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $vaultId
-
 
 ##########################################
 #copy website content from GIT to storage#
@@ -152,7 +151,6 @@ $KeyVaultIdVar = New-AzureRmAutomationVariable -Encrypted $true -Name "vaultid" 
 $Context = New-AzureStorageContext -StorageAccountName $storageAccount.StorageAccountName -StorageAccountKey $storagePrimaryKey
 $container = New-AzureStorageContainer -Name "website-bits" -Context $Context
 Start-AzureStorageBlobCopy -AbsoluteUri "$artifactsLocation/website.zip" -DestContainer $container.Name -DestBlob "azdays-website.zip" -DestContext $Context
-
 
 #####################
 ###VNet deployment###

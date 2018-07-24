@@ -1,0 +1,61 @@
+{
+"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+"contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUserName": {
+      "value": ""
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": ""
+        },
+        "secretName": "vmAdminPassword"
+      }
+    },
+    "windowsOSVersion": {
+      "value": ""
+    },
+    "osDiskStorageType": {
+      "value": ""
+    },
+    "vmSize": {
+      "value": ""
+    },
+    "vmNamePrefix": {
+      "value": ""
+    },
+    "numberOfInstances": {
+      "value": 2
+    },
+    "availabilitySetName": {
+      "value": ""
+    },
+    "virtualNetworkName": {
+      "value": ""
+    },
+    "virtualNetworkResourceGroup": {
+      "value": ""
+    },
+    "fileUri": {
+      "value": ""
+    },
+    "commandToExecute": {
+      "value": ""
+    },
+    "subnetName": {
+      "value": ""
+    },
+    "workspaceId": {
+      "value": ""
+    },
+    "workspaceKey": {
+      "reference": {
+        "keyVault": {
+          "id": ""
+        },
+        "secretName": "omsKey"
+      }
+    }
+  }
+}

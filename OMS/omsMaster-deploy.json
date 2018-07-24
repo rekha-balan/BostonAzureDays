@@ -1,0 +1,172 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "omsRecoveryVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Assign a name for the ASR Recovery Vault"
+      }
+    },
+    "omsRecoveryVaultRegion": {
+      "type": "string",
+      "defaultValue": "East US",
+      "allowedValues": [
+        "West Europe",
+        "East US",
+        "West US"
+      ],
+      "metadata": {
+        "description": "Specify the region for your Recovery Vault"
+      }
+    },
+    "omsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Assign a name for the Log Analytic Workspace Name"
+      }
+    },
+    "omsWorkspaceRegion": {
+      "type": "string",
+      "defaultValue": "East US",
+      "allowedValues": [
+        "West Europe",
+        "East US",
+        "West US"
+      ],
+      "metadata": {
+        "description": "Specify the region for your Workspace"
+      }
+    },
+    "omsAutomationAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Assign a name for the Automation account"
+      }
+    },
+    "omsAutomationRegion": {
+      "type": "string",
+      "defaultValue": "East US 2",
+      "allowedValues": [
+        "West Europe",
+        "East US 2",
+        "West Central US"
+      ],
+      "metadata": {
+        "description": "Specify the region for your Automation account"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/mmcsa/AzureDays/master/OMS",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located"
+      }
+    },
+    "azureAdmin": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter your service admin user"
+      }
+    },
+    "azureAdminPwd": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Enter the pwd for the service admin user. The pwd is enrypted during runtime and in the Automation assets"
+      }
+    }
+  },
+  "variables": {
+    "nestedTemplates": {
+      "omsRecoveryServices": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/omsRecoveryServices.json')]",
+      "omsAutomation": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/omsAutomation.json')]",
+      "omsWorkspace": "[concat(parameters('_artifactsLocation'), '/nestedtemplates/omsWorkspace.json')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-02-01",
+      "name": "omsRecoveryServices",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('nestedTemplates').omsRecoveryServices]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "omsRecoveryVaultName": {
+            "value": "[parameters('omsRecoveryVaultName')]"
+          },
+          "omsRecoveryVaultRegion": {
+            "value": "[parameters('omsRecoveryVaultRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-02-01",
+      "name": "omsWorkspace",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'omsRecoveryServices')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('nestedTemplates').omsWorkspace]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "omsWorkspaceName": {
+            "value": "[parameters('omsWorkspaceName')]"
+          },
+          "omsWorkspaceRegion": {
+            "value": "[parameters('omsWorkspaceRegion')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-02-01",
+      "name": "omsAutomation",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'omsRecoveryServices')]",
+        "[concat('Microsoft.Resources/deployments/', 'omsWorkspace')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('nestedTemplates').omsAutomation]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "omsAutomationAccountName": {
+            "value": "[parameters('omsAutomationAccountName')]"
+          },
+          "omsAutomationRegion": {
+            "value": "[parameters('omsAutomationRegion')]"
+          },
+          "omsRecoveryVaultName": {
+            "value": "[parameters('omsRecoveryVaultName')]"
+          },
+          "omsWorkspaceName": {
+            "value": "[parameters('omsWorkspaceName')]"
+          },
+          "azureAdmin": {
+            "value": "[parameters('azureAdmin')]"
+          },
+          "azureAdminPwd": {
+            "value": "[parameters('azureAdminPwd')]"
+          },
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": { }
+}

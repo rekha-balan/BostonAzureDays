@@ -1,0 +1,41 @@
+{
+"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+"contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUserName": {
+      "value": "nikevsuser"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b01276dd-92b7-43d1-bf61-c03f0788a8d8/resourceGroups/azd-sharedops-rg-01/providers/Microsoft.KeyVault/vaults/azd-sharedops-kv-01"
+        },
+        "secretName": "vsPassword"
+      }
+    },
+    "osDiskStorageType": {
+      "value": "Standard_LRS"
+    },
+    "vmSize": {
+      "value": "Standard_D4_v3"
+    },
+    "vmNamePrefix": {
+      "value": "azdvs"
+    },
+    "numberOfInstances": {
+      "value": 13
+    },
+    "availabilitySetName": {
+      "value": "azd-visualstudio-as-01"
+    },
+    "virtualNetworkName": {
+      "value": "azd-visualstudio-vnet-01"
+    },
+    "virtualNetworkResourceGroup": {
+      "value": "azd-visualstudio-rg-01"
+    },
+    "subnetName": {
+      "value": "vssubnet"
+    }
+  }
+}

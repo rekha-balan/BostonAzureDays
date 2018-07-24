@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "omsRecoveryVaultName": {
+      "value": "azd-matmorgan-rv-01"
+    },
+    "omsRecoveryVaultRegion": {
+      "value": "West Europe"
+    },
+    "omsWorkspaceName": {
+      "value": "azd-matmorgan-la-01"
+    },
+    "omsWorkspaceRegion": {
+      "value": "West Europe"
+    },
+    "omsAutomationAccountName": {
+      "value": "azd-matmorgan-aa-01"
+    },
+    "omsAutomationRegion": {
+      "value": "West Europe"
+    },
+    "azureAdmin": {
+      "value": "mat.morgan@nike.com"
+    },
+    "_artifactsLocation": {
+      "value": "https://raw.githubusercontent.com/mmcsa/AzureDays/master/OMS"
+    }
+  }
+}

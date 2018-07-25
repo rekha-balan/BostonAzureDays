@@ -131,7 +131,7 @@
     "omsWorkspaceNameAsset": "OMSWorkspaceName",
     "omsResourceGroupName": "OMSResourceGroupName",
     "omsRecoveryVault": "OMSRecoveryVault",
-    "azureCredentials": "AzureCredentials"
+    "azureCredentials": "AzureVmCredentials"
   },
   "resources": [
     {

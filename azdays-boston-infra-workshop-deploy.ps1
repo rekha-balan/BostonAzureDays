@@ -129,7 +129,7 @@ $secret = Set-AzureKeyVaultSecret -VaultName $keyvaultName -Name 'vmAdminPasswor
 
 ###########################################################################
 #get Automation registration info for DSC, set variables for VM deployment#
-#we will be placing deployment variables in Automation account            #
+#we will be placing deployment variables & credentials in Automation      #
 ###########################################################################
 $RegistrationInfo = Get-AzureRmAutomationRegistrationInfo -ResourceGroupName $OpsResourceGroupName -AutomationAccountName $omsAutomationAccountName
 $registrationUrl = $RegistrationInfo.Endpoint
@@ -144,6 +144,7 @@ $artifactsVar = New-AzureRmAutomationVariable -Encrypted $false -Name "artifacts
 $storageAccountNameVar = New-AzureRmAutomationVariable -Encrypted $false -Name "saname" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $storageAccount.StorageAccountName
 $storageAccountKeyVar = New-AzureRmAutomationVariable -Encrypted $true -Name "sakey" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $storagePrimaryKey
 $KeyVaultIdVar = New-AzureRmAutomationVariable -Encrypted $true -Name "vaultid" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $vaultId
+$AzureCredentialCred = New-AzureRmAutomationCredential -Name "AzureCredential" -ResourceGroupName $OpsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $AzureCredential
 
 ##########################################
 #copy website content from GIT to storage#

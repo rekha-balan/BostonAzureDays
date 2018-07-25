@@ -70,7 +70,7 @@ foreach ($ResourceGroupName in $ResourceGroupNameArray)
         }
     }
 #initial steps --if you have access to multiple subscriptions uncomment below & add correct sub name
-$artifactsLocation = "https://jorsmith.visualstudio.com/BostonAzureDays/_git/BostonAzureDays"
+$artifactsLocation = "https://raw.githubusercontent.com/mmcsa/BostonAzureDays/master"
 $omsRecoveryVaultName = "azdbos-$ResourceGroupNameString-rv-01"
 $omsWorkspaceName        = "azdbos-$ResourceGroupNameString-law-01"
 $omsAutomationAccountName= "azdbos-$ResourceGroupNameString-aa-01"
@@ -253,44 +253,6 @@ $lb | Add-AzureRmLoadBalancerInboundNatRuleConfig `
 -BackendPort 3389
 
 Set-AzureRmLoadBalancer -LoadBalancer $lb
-
-##########################
-# Import DSC config      #
-##########################
-$dscConfig = Import-AzureRmAutomationDscConfiguration -ResourceGroupName $OpsResourceGroupName -AutomationAccountName $omsAutomationAccountName -SourcePath "$artifactsLocation//DSC/WebConfig.ps1"
-$dscNodeConfig = Start-AzureRmAutomationDscCompilationJob -ResourceGroupName $OpsResourceGroupName -AutomationAccountName $omsAutomationAccountName -ConfigurationName "WebConfig"
-
-##########################
-#create Windows VMs      #
-##########################
-$vmParameters = @{
-        vmResourceGroup = $VmResourceGroupName
-        opsResourceGroup = $OpsResourceGroupName
-        vmNamePrefix = "azdboswin"
-        availabilitySetName = "azdbos-$ResourceGroupNameString-as-01"
-        vmSize = "Standard_D2_v3"
-        numberOfInstances = "2"
-        nodeConfigurationName = "Web"
-}
-
-Start-AzureRmAutomationRunbook -Name "azdays-boston-VmDeploy.ps1" -Parameters $vmParameters -Wait
-
-#########################################################################
-#add VMs to Load Balancer with RDP NAT rules mapped across multiple VMs.# 
-#########################################################################
-$vms = Get-AzureRmVM -ResourceGroupName $vmResourceGroup
-$lb = Get-AzureRmLoadBalancer -Name azd-lb-01 -ResourceGroupName $vnetresourceGroup
-$vmCount = 0
-foreach ($vm in $vms)
-    {     
-        $nicId = $vm.NetworkProfile.NetworkInterfaces.id
-        $nicName = $nicId.split('/')[8]
-        $nic = get-azureRMNetworkInterface -Name $nicName -ResourceGroupName $vmResourceGroup
-        $nic.IpConfigurations[0].LoadBalancerBackendAddressPools=$lb.BackendAddressPools[$vmCount]
-        $nic.IpConfigurations[0].LoadBalancerInboundNatRules=$lb.InboundNatRules[$vmCount]
-        Set-AzureRmNetworkInterface -NetworkInterface $nic
-        $vmCount++
-    }
 
 <# #############################################################
 #create Azure Container Registry                            #

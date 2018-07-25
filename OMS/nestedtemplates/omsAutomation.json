@@ -110,7 +110,7 @@
         "url": "https://devopsgallerystorage.blob.core.windows.net/packages/cazurestorage.1.0.0.1.nupkg"
       },
       "azureRmKeyVault": {
-        "name": "AzureRmKeyVault",
+        "name": "AzureRm.KeyVault",
         "url": "https://devopsgallerystorage.blob.core.windows.net/packages/azurerm.keyvault.5.0.4.nupkg"
       }
 

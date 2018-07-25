@@ -150,7 +150,7 @@
     },
     "refreshFrequencyMins": {
       "type": "int",
-      "defaultValue": 15,
+      "defaultValue": 30,
       "metadata": {
         "description": "DSC agent (LCM) refresh frequency setting, in minutes"
       }

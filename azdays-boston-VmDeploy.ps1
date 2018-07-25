@@ -2,10 +2,6 @@
 #DSC and OMS extensions configured with DSC node config as selected. 
 Param
 (
-    # name of VM resource group
-    # [Parameter(Mandatory=$true, HelpMessage="Name of Resource Group for VMs")]
-    # [string]$vmResourceGroup,
-
     # name of Resource Group with Automation account deployed
     [Parameter(Mandatory=$true, HelpMessage="Name of Resource Group for automation acccount")]
     [string]$opsResourceGroup,
@@ -13,10 +9,6 @@ Param
     # prefix for VM names
     [Parameter(Mandatory=$true, HelpMessage="prefix for VM names")]
     [string]$vmNamePrefix,
-
-    # availability set name
-    # [Parameter(Mandatory=$true, HelpMessage="name for Availability set for VMs")]
-    # [string]$availabilitySetName,
 
     #VM Size
     [Parameter(Mandatory=$false, HelpMessage="Enter the Vm Size.")]
@@ -38,7 +30,7 @@ function Log-Output($msg) {
     Write-Output "[$(get-date -Format HH:mm:ss)] $msg"
 }
 # Connect to Azure using AD Credentials
-#$AzureCredential = Get-AutomationPSCredential -Name 'AzureCredentials'
+#$AzureCredential = Get-AutomationPSCredential -Name 'AzureCredential'
 #Log-Output "retrieved azure credentials $AzureCredential"
 #Add-AzureRmAccount -Credential $AzureCredential
 #set-azureRmContext -Subscription az-training-01

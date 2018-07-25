@@ -3,8 +3,8 @@
 Param
 (
     # name of VM resource group
-    [Parameter(Mandatory=$true, HelpMessage="Name of Resource Group for VMs")]
-    [string]$vmResourceGroup,
+    # [Parameter(Mandatory=$true, HelpMessage="Name of Resource Group for VMs")]
+    # [string]$vmResourceGroup,
 
     # name of Resource Group with Automation account deployed
     [Parameter(Mandatory=$true, HelpMessage="Name of Resource Group for automation acccount")]
@@ -15,22 +15,22 @@ Param
     [string]$vmNamePrefix,
 
     # availability set name
-    [Parameter(Mandatory=$true, HelpMessage="name for Availability set for VMs")]
-    [string]$availabilitySetName,
+    # [Parameter(Mandatory=$true, HelpMessage="name for Availability set for VMs")]
+    # [string]$availabilitySetName,
 
     # VM Size
-    [Parameter(Mandatory=$True, HelpMessage="Enter the Vm Size.")]
-    [ValidateSet("Standard_D2_v3")]
-    [String]$VmSize,
+    # [Parameter(Mandatory=$false, HelpMessage="Enter the Vm Size.")]
+    # [ValidateSet("Standard_D2_v3")]
+    # [String]$VmSize,
 
     # number of VMs to deploy
-    [Parameter(Mandatory=$true, HelpMessage="number of identical VMs to deploy")]
-    [int]$numberOfInstances,
+    [Parameter(Mandatory=$false, HelpMessage="number of identical VMs to deploy")]
+    [int]$numberOfInstances=2,
 
     # DSC Node config to use
-    [Parameter(Mandatory=$true, HelpMessage="DSC configuration to apply")]
+    [Parameter(Mandatory=$false, HelpMessage="DSC configuration to apply")]
     [ValidateSet("Web")]
-    [string]$nodeConfigurationName
+    [string]$nodeConfigurationName="Web"
 )
 # Function to log output with timestamp.
 #initial steps --if you have access to multiple subscriptions uncomment below & add correct sub name
@@ -135,3 +135,20 @@ Log-Output "attaching NSG to subnet $vmSubnetName"
 $vnet = Set-AzureRmVirtualNetwork -VirtualNetwork $vnet
 
 Log-Output "******deployment complete******"
+
+#########################################################################
+#add VMs to Load Balancer with RDP NAT rules mapped across multiple VMs.# 
+#########################################################################
+$vms = Get-AzureRmVM -ResourceGroupName $vmResourceGroup
+$lb = Get-AzureRmLoadBalancer -Name azd-lb-01 -ResourceGroupName $vnetresourceGroup
+$vmCount = 0
+foreach ($vm in $vms)
+    {     
+        $nicId = $vm.NetworkProfile.NetworkInterfaces.id
+        $nicName = $nicId.split('/')[8]
+        $nic = get-azureRMNetworkInterface -Name $nicName -ResourceGroupName $vmResourceGroup
+        $nic.IpConfigurations[0].LoadBalancerBackendAddressPools=$lb.BackendAddressPools[$vmCount]
+        $nic.IpConfigurations[0].LoadBalancerInboundNatRules=$lb.InboundNatRules[$vmCount]
+        Set-AzureRmNetworkInterface -NetworkInterface $nic
+        $vmCount++
+    }

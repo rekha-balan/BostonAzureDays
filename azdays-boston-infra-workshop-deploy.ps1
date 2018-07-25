@@ -64,6 +64,15 @@ foreach ($ResourceGroupName in $ResourceGroupNameArray)
             } catch { 
     	        throw "$($_.exception.message)" 
             }
+            try {
+                $Role = New-AzureRmRoleAssignment `
+                    -Scope "/subscriptions/b01276dd-92b7-43d1-bf61-c03f0788a8d8" `
+                    -RoleDefinitionName "Reader" `
+                    -SignInName $ResourceGroupOwner `
+                    -ErrorAction Stop
+            } catch { 
+    	        throw "$($_.exception.message)" 
+            }
         }
     }
 #initial steps --if you have access to multiple subscriptions uncomment below & add correct sub name

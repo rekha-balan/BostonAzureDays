@@ -313,7 +313,7 @@
           ],
           "properties": {
             "contentLink": {
-              "uri": "[variables('psModules').azureStorage.url]"
+              "uri": "[variables('psModules').azureRmKeyVault.url]"
             }
           }
         },

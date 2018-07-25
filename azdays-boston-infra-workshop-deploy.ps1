@@ -113,7 +113,7 @@ New-AzureRmKeyVault `
 
 #Get resource ID of KeyVault for VM template parameters
 $Vault = Get-AzureRmKeyVault -VaultName $keyvaultName -ResourceGroupName $OpsResourceGroupName
-Set-AzureRmKeyVaultAccessPolicy -InputObject $Vault -UserPrincipalName $ResourceGroupOwner -PermissionsToSecrets get,list,set -PermissionsToKeys get,list,set -PermissionsToStorage get,list,set -PermissionsToCertificates get,list
+Set-AzureRmKeyVaultAccessPolicy -InputObject $Vault -UserPrincipalName $ResourceGroupOwner -PermissionsToSecrets get,list,set -PermissionsToKeys get,list -PermissionsToStorage get,list,set -PermissionsToCertificates get,list
 $vaultId = $vault.ResourceId
 #get OMS workspace name & keys, store key in vault.
 $omsWorkspace = Get-AzureRmOperationalInsightsWorkspace -ResourceGroupName $opsResourceGroupName
@@ -145,6 +145,7 @@ $storageAccountNameVar = New-AzureRmAutomationVariable -Encrypted $false -Name "
 $storageAccountKeyVar = New-AzureRmAutomationVariable -Encrypted $true -Name "sakey" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $storagePrimaryKey
 $KeyVaultIdVar = New-AzureRmAutomationVariable -Encrypted $true -Name "vaultid" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $vaultId
 $AzureCredentialCred = New-AzureRmAutomationCredential -Name "AzureCredential" -ResourceGroupName $OpsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $AzureCredential
+
 
 ##########################################
 #copy website content from GIT to storage#

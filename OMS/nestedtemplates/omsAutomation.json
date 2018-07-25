@@ -223,7 +223,7 @@
           ],
           "tags": {},
           "properties": {
-            "description": "Azure Subscription Credentials",
+            "description": "Azure VM Credentials",
             "password": "[parameters('azureAdminPwd')]",
             "userName": "[parameters('azureAdmin')]"
           }

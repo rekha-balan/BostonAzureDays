@@ -18,10 +18,10 @@ Param
     # [Parameter(Mandatory=$true, HelpMessage="name for Availability set for VMs")]
     # [string]$availabilitySetName,
 
-    # VM Size
-    # [Parameter(Mandatory=$false, HelpMessage="Enter the Vm Size.")]
-    # [ValidateSet("Standard_D2_v3")]
-    # [String]$VmSize,
+    #VM Size
+    [Parameter(Mandatory=$false, HelpMessage="Enter the Vm Size.")]
+    [ValidateSet("Standard_D2_v3")]
+    [String]$VmSize="Standard_D2_v3",
 
     # number of VMs to deploy
     [Parameter(Mandatory=$false, HelpMessage="number of identical VMs to deploy")]
@@ -38,10 +38,10 @@ function Log-Output($msg) {
     Write-Output "[$(get-date -Format HH:mm:ss)] $msg"
 }
 # Connect to Azure using AD Credentials
-$AzureCredential = Get-AutomationPSCredential -Name 'AzureCredentials'
-Log-Output "retrieved azure credentials $AzureCredential"
-Add-AzureRmAccount -Credential $AzureCredential
-set-azureRmContext -Subscription az-training-01
+#$AzureCredential = Get-AutomationPSCredential -Name 'AzureCredentials'
+#Log-Output "retrieved azure credentials $AzureCredential"
+#Add-AzureRmAccount -Credential $AzureCredential
+#set-azureRmContext -Subscription az-training-01
 $keyvault = Get-AzureRmKeyVault -ResourceGroupName $OpsResourceGroup
 
 Log-Output ("connected to subscription " + $armContext.Subscription +" as " + $armContext.Account.Id)
@@ -52,9 +52,12 @@ $adminSecret = Get-AzureKeyVaultSecret -VaultName $keyvault.VaultName -Name 'vmA
 $adminPassword = ($adminSecret.SecretValueText | ConvertTo-SecureString -AsPlainText -Force)
 $Account = Get-AzureRmAutomationAccount -ResourceGroupName $OpsResourceGroup
 $autoAccountName = $account.AutomationAccountName
-$adminUsername = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -Name "adminUserName").Value
+$adminUserVar = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -AutomationAccountName $autoAccountName -Name "adminuser").Value
+$adminUsername = "$adminUserVar"
 $vnetResourceVar = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -AutomationAccountName $autoAccountName -Name "VnetResourceGroup").Value
-$vnetResourceGroup = "$vnetResourceVar" ##for whatever reason some retreived vars can't be directly passed unless redeclared as strings 
+$vnetResourceGroup = "$vnetResourceVar" ##for whatever reason some retreived vars can't be directly passed unless redeclared as strings
+$vmResourceVar = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -AutomationAccountName $autoAccountName -Name "VmResourceGroup").Value
+$vmResourceGroup = "$vmResourceVar" ##for whatever reason some retreived vars can't be directly passed unless redeclared as strings 
 $artifactsLocation = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -AutomationAccountName $autoAccountName -Name "ArtifactsLocation").Value
 $vaultId = (Get-AzureRmAutomationVariable -ResourceGroupName $opsResourceGroup -AutomationAccountName $autoAccountName -Name "vaultid").Value
 
@@ -64,8 +67,6 @@ $vnetName = $vnet.Name
 $subnets = $vnet.Subnets
 $vmSubnetName = $subnets[1].Name
 
-$nodeConfiguration = "WebConfig.$nodeConfigurationName"
-
 Log-Output ("VMs will be placed in VNET = " + $vnetName + ", subnet = " + $vmSubnetName)
 
 #get OMS workspace info
@@ -73,6 +74,10 @@ $omsWorkspace = Get-AzureRmOperationalInsightsWorkspace -ResourceGroupName $OpsR
 $workspaceId = $omsWorkspace.CustomerId.Guid
 $workspaceSecret = Get-AzureKeyVaultSecret -VaultName $keyvault.VaultName -Name 'omsKey'
 $workspaceKey = ($workspaceSecret.SecretValueText | ConvertTo-SecureString -AsPlainText -Force)
+$nodeConfiguration = "WebConfig.$nodeConfigurationName"
+
+$availabilitySetName = "azdbos-$adminUsername-as-01"
+
 
 Log-Output ("automation account $autoAccountName found")
 Log-Output ("DSC registration URL $registrationUrl will be used")
@@ -152,3 +157,6 @@ foreach ($vm in $vms)
         Set-AzureRmNetworkInterface -NetworkInterface $nic
         $vmCount++
     }
+
+
+    

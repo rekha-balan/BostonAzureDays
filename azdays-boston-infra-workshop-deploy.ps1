@@ -8,10 +8,7 @@ Param(
 
     [Parameter(Mandatory=$False, HelpMessage="Enter an optional location in which to add the Resource Group.")]
     [ValidateSet("East US", "West US", "West Europe", "Southeast Asia", "eastus", "westus", "westeurope", "southeastasia")]
-    [String]$Location="East US",
-
-    [Parameter(Mandatory=$False, HelpMessage="local admin password to use for accessing VMs")]
-    [String]$azureAdminPwd="NikeConverseAzure19"
+    [String]$Location="East US"
 )
 # Function to log output with timestamp.
 function Log-Output($msg) {
@@ -74,8 +71,8 @@ $artifactsLocation = "https://raw.githubusercontent.com/mmcsa/BostonAzureDays/ma
 $omsRecoveryVaultName = "azdbos-$ResourceGroupNameString-rv-01"
 $omsWorkspaceName        = "azdbos-$ResourceGroupNameString-law-01"
 $omsAutomationAccountName= "azdbos-$ResourceGroupNameString-aa-01"
-$azureAdminPwdSecure = ConvertTo-SecureString -String $azureAdminPwd -AsPlainText -Force
-
+$azureAdminVar = Get-AzureRmAutomationVariable -ResourceGroupName "azd-sharedops-rg-01" -AutomationAccountName "azd-sharedops-aa-01" -Name "vmAdminPwd"
+$azureAdminPwd = "$azureAdminVar"
 
 # set resource group names from username
 
@@ -125,6 +122,7 @@ $omsVault = Set-AzureKeyVaultSecret -VaultName $keyvaultName -Name 'omsKey' -Sec
 #store Admin password in Keyvault
 $adminUserName = $ResourceGroupNameString
 $adminUserNameVar = New-AzureRmAutomationVariable -Encrypted $false -Name "adminuser" -ResourceGroupName $opsResourceGroupName -AutomationAccountName $omsAutomationAccountName -Value $adminUserName
+$azureAdminPwdSecure = ConvertTo-SecureString -String $azureAdminPwd -AsPlainText -Force
 $secret = Set-AzureKeyVaultSecret -VaultName $keyvaultName -Name 'vmAdminPassword' -SecretValue $azureAdminPwdSecure
 
 ###########################################################################

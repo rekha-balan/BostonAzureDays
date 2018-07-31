@@ -33,7 +33,7 @@ function Log-Output($msg) {
 #$AzureCredential = Get-AutomationPSCredential -Name 'AzureCredential'
 #Log-Output "retrieved azure credentials $AzureCredential"
 #Add-AzureRmAccount -Credential $AzureCredential
-#set-azureRmContext -Subscription az-training-01
+set-azureRmContext -Subscription az-training-01
 $keyvault = Get-AzureRmKeyVault -ResourceGroupName $OpsResourceGroup
 
 Log-Output ("connected to subscription " + $armContext.Subscription +" as " + $armContext.Account.Id)
